@@ -3,8 +3,9 @@ import { getViewer } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 import { signOut } from "./actions";
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ auth_error?: string }> }) {
   const { user, profile } = await getViewer();
+  const { auth_error } = await searchParams;
   return (
     <main className="home-shell">
       <div className="eyebrow">PRIVATE FILM CLUB</div>
@@ -13,7 +14,8 @@ export default async function Home() {
         <section className="intro-card">
           <p className="kicker">EN ANNAN SORTS FILMSKALA</p>
           <h2>Vad är något värt att se?</h2>
-          <p className="muted">Logga in med e-postlänk för att sätta betyg och se gruppens omdömen.</p>
+          <p className="muted">Logga in med Google eller e-postlänk för att sätta betyg och se gruppens omdömen.</p>
+          {auth_error && <p role="alert" className="error-message">Inloggningen kunde inte slutföras. Försök igen eller använd e-postlänken.</p>}
           <LoginForm />
           <p className="small muted">Nya konton behöver godkännas innan de får tillgång till gruppen.</p>
         </section>

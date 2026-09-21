@@ -10,7 +10,15 @@ Private film and TV ratings for a small approved group. Next.js 16, Supabase and
 4. In Supabase Auth → URL Configuration, set the Site URL and allow `<origin>/auth/callback`. The current project allows `https://nuisance.se/auth/callback` and `http://localhost:3000/auth/callback`.
 5. Run `pnpm dev`.
 
-The app uses email magic links. Google Auth can be added when Google OAuth is configured in Supabase.
+The app offers Google OAuth and email magic links. Google OAuth requires a Web application OAuth client in Google Auth Platform and the Google provider enabled in Supabase. No Google secret belongs in this repo or Vercel.
+
+## Google OAuth setup
+
+1. In Google Auth Platform, configure the consent screen and create an OAuth client of type **Web application**. Add `https://nuisance.se` and `http://localhost:3000` as Authorized JavaScript origins. Add `https://sjuaoddctstukfvmbbdn.supabase.co/auth/v1/callback` as the Authorized redirect URI. Google does not accept wildcard origins for Vercel previews.
+2. In Supabase Authentication → Sign In / Providers → Google, enter the Google Client ID and Client Secret and enable the provider. Keep nonce checks enabled.
+3. In Supabase Authentication → URL Configuration, keep Site URL `https://nuisance.se`. Allow `https://nuisance.se/auth/callback`, `http://localhost:3000/auth/callback`, and `https://*-nuisance.vercel.app/auth/callback`. The preview wildcard has already been added to the hosted project.
+
+The app sends users back to the same origin that started sign-in. Its `/auth/callback` route exchanges the PKCE code for a cookie-backed session and returns to `/`. The existing approval system still applies to Google users.
 
 ## Member approval
 
