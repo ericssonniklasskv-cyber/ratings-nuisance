@@ -11,7 +11,7 @@ export default async function MyRatingsPage() {
     .eq("user_id", user!.id).order("updated_at", { ascending: false });
 
   return <main className="app-shell">
-    <AppHeader admin={profile!.is_admin} />
+    <AppHeader admin={profile?.is_admin ?? false} />
     <div className="page-heading"><p className="kicker">02 / YOUR COLLECTION</p><h1>My Ratings</h1><p className="muted">Dina betyg, senast uppdaterade först.</p></div>
     {error ? <p className="error-message">Kunde inte läsa dina betyg.</p> : ratings?.length ? <div className="rating-list">
       {ratings.map((rating) => rating.titles && <article className="rating-item" key={rating.id}>

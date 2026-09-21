@@ -3,8 +3,8 @@ import { getViewer } from "@/lib/auth";
 import { searchTmdb } from "@/lib/tmdb";
 
 export async function GET(request: NextRequest) {
-  const { profile } = await getViewer();
-  if (!profile?.is_active) return NextResponse.json({ error: "Inte behörig." }, { status: 401 });
+  const { user } = await getViewer();
+  if (!user) return NextResponse.json({ error: "Inte behörig." }, { status: 401 });
   const query = request.nextUrl.searchParams.get("q")?.trim() || "";
   if (query.length < 2 || query.length > 80) return NextResponse.json({ error: "Sök på 2–80 tecken." }, { status: 400 });
   try {

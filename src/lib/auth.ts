@@ -7,7 +7,7 @@ export async function getViewer() {
   if (!user) return { supabase, user: null, profile: null };
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, display_name, is_active, is_admin")
+    .select("id, display_name, is_admin")
     .eq("id", user.id)
     .maybeSingle();
   return { supabase, user, profile };
@@ -15,7 +15,7 @@ export async function getViewer() {
 
 export async function requireMember() {
   const viewer = await getViewer();
-  if (!viewer.user || !viewer.profile?.is_active) redirect("/");
+  if (!viewer.user) redirect("/");
   return viewer;
 }
 

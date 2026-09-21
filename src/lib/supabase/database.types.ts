@@ -22,6 +22,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean
+          is_trusted_rater: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -30,6 +31,7 @@ export type Database = {
           id: string
           is_active?: boolean
           is_admin?: boolean
+          is_trusted_rater?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean
+          is_trusted_rater?: boolean
         }
         Relationships: []
       }
@@ -151,7 +154,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      official_group_ratings: {
+        Row: {
+          rating_count: number | null
+          score: number | null
+          title_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

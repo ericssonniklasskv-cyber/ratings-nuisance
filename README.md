@@ -1,13 +1,13 @@
 # Nuisance
 
-Private film and TV ratings for a small approved group. Next.js 16, Supabase and TMDb.
+Film and TV ratings with a separate trusted group score. Next.js 16, Supabase and TMDb.
 
 ## Setup
 
 1. Install dependencies with `pnpm install`.
 2. Copy `.env.example` to `.env.local` and set the three values. The TMDb read token stays server-side.
 3. Apply the SQL files in `supabase/migrations` in filename order to the existing Supabase project. They are also recorded in Supabase migration history.
-4. In Supabase Auth → URL Configuration, set the Site URL and allow `<origin>/auth/callback`. The current project allows `https://nuisance.se/auth/callback` and `http://localhost:3000/auth/callback`.
+4. In Supabase Auth → URL Configuration, set the Site URL and allow `<origin>/auth/callback`. The current project allows production, localhost, and `https://*-nuisance.vercel.app/auth/callback` for previews.
 5. Run `pnpm dev`.
 
 The app offers Google OAuth and email magic links. Google OAuth requires a Web application OAuth client in Google Auth Platform and the Google provider enabled in Supabase. No Google secret belongs in this repo or Vercel.
@@ -18,19 +18,21 @@ The app offers Google OAuth and email magic links. Google OAuth requires a Web a
 2. In Supabase Authentication → Sign In / Providers → Google, enter the Google Client ID and Client Secret and enable the provider. Keep nonce checks enabled.
 3. In Supabase Authentication → URL Configuration, keep Site URL `https://nuisance.se`. Allow `https://nuisance.se/auth/callback`, `http://localhost:3000/auth/callback`, and `https://*-nuisance.vercel.app/auth/callback`. The preview wildcard has already been added to the hosted project.
 
-The app sends users back to the same origin that started sign-in. Its `/auth/callback` route exchanges the PKCE code for a cookie-backed session and returns to `/`. The existing approval system still applies to Google users.
+The app sends users back to the same origin that started sign-in. Its `/auth/callback` route exchanges the PKCE code for a cookie-backed session and returns to `/`. Every authenticated user can use the app immediately.
 
-## Member approval
+## Trusted group ratings
 
-New profiles are inactive by default. After a person signs in for the first time, an operator approves them in the Supabase SQL Editor:
+New profiles have `is_trusted_rater = false`. Any authenticated user can rate titles and see their own ratings. The official group score is calculated by the `official_group_ratings` database view from trusted users' ratings only. Ratings from other users remain visible individually but do not affect that score. When no trusted user has rated a title, the view returns no group score.
+
+To mark a profile as trusted, run this in the Supabase SQL Editor after that user has signed in:
 
 ```sql
 update public.profiles
-set is_active = true, is_admin = true
+set is_trusted_rater = true
 where id = (select id from auth.users where email = 'your-email@example.com');
 ```
 
-Set `is_admin = true` only for trusted reference-title administrators. For regular members, set just `is_active = true`. These columns cannot be changed through the app's Data API. Keep Supabase Auth signups and group approval under review as the group grows.
+Change `is_trusted_rater` through the Supabase SQL Editor using a database administrator account. Regular clients can update their own display name and avatar URL, but cannot edit trust or admin flags. `is_admin` remains a separate role for reference-title management. The former `is_active` field is retained for historical data but no longer controls access.
 
 ## Rating scale
 
