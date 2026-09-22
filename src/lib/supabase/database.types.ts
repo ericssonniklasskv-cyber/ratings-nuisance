@@ -205,6 +205,23 @@ export type Database = {
       }
     }
     Views: {
+      imdb_library: {
+        Row: {
+          id: string | null
+          user_id: string | null
+          imdb_id: string | null
+          title: string | null
+          release_year: number | null
+          media_type: string | null
+          tmdb_id: number | null
+          poster_path: string | null
+          title_id: string | null
+          match_attempted_at: string | null
+          imported_at: string | null
+          is_rated: boolean | null
+        }
+        Relationships: []
+      }
       official_group_ratings: {
         Row: {
           rating_count: number | null
