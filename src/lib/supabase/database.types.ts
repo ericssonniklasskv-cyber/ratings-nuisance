@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      imdb_imports: {
+        Row: {
+          id: string
+          user_id: string
+          imdb_id: string
+          source_title: string
+          source_year: number | null
+          source_media_type: string | null
+          title_id: string | null
+          imported_at: string
+          match_attempted_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          imdb_id: string
+          source_title: string
+          source_year?: number | null
+          source_media_type?: string | null
+          title_id?: string | null
+          imported_at?: string
+          match_attempted_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          imdb_id?: string
+          source_title?: string
+          source_year?: number | null
+          source_media_type?: string | null
+          title_id?: string | null
+          imported_at?: string
+          match_attempted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imdb_imports_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imdb_imports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

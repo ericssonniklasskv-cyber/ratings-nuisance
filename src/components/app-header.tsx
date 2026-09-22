@@ -20,6 +20,7 @@ export function AppHeader({ admin = false }: { admin?: boolean }) {
       <details className="account-menu">
         <summary>Account</summary>
         <div className="account-options">
+          <Link href="/imdb">IMDb import</Link>
           {admin && <Link href="/admin/references">References</Link>}
           <form action={signOut}><button type="submit">Sign out</button></form>
         </div>
