@@ -5,19 +5,19 @@ import { requireMember } from "@/lib/auth";
 import { ensureTitle } from "@/lib/data";
 import { getTmdbTitle, type MediaType } from "@/lib/tmdb";
 
-export async function saveRating(_state: { message: string; saved: boolean }, formData: FormData) {
+export async function saveRating(_state: { message: string; saved: boolean; score: number | null }, formData: FormData) {
   const type = String(formData.get("type"));
   const id = Number(formData.get("id"));
   const rawScore = String(formData.get("score") || "").trim();
   if ((type !== "movie" && type !== "tv") || !Number.isSafeInteger(id) || id <= 0)
-    return { message: "Ogiltig titel.", saved: false };
+    return { message: "Ogiltig titel.", saved: false, score: null };
   if (!/^(?:0|1|(?:[2-9]|10)(?:\.[0-9])?)$/.test(rawScore))
-    return { message: "Använd 0, 1 eller ett betyg från 2.0 till 10.0 med högst en decimal.", saved: false };
+    return { message: "Använd 0, 1 eller ett betyg från 2.0 till 10.0 med högst en decimal.", saved: false, score: null };
   const score = Number(rawScore);
-  if (score > 10) return { message: "Betyget får högst vara 10.", saved: false };
+  if (score > 10) return { message: "Betyget får högst vara 10.", saved: false, score: null };
   const { supabase, user } = await requireMember();
   const title = await getTmdbTitle(type as MediaType, id);
-  if (!title) return { message: "Kunde inte hämta titeln från TMDb.", saved: false };
+  if (!title) return { message: "Kunde inte hämta titeln från TMDb.", saved: false, score: null };
   try {
     const titleId = await ensureTitle(supabase, title);
     const { error } = await supabase.from("ratings").upsert({
@@ -26,9 +26,9 @@ export async function saveRating(_state: { message: string; saved: boolean }, fo
     if (error) throw error;
     revalidatePath(`/rate/${type}/${id}`);
     revalidatePath("/my-ratings");
-    return { message: "Betyget är sparat.", saved: true };
+    return { message: "Betyget är sparat.", saved: true, score };
   } catch {
-    return { message: "Kunde inte spara betyget. Försök igen.", saved: false };
+    return { message: "Kunde inte spara betyget. Försök igen.", saved: false, score: null };
   }
 }
 

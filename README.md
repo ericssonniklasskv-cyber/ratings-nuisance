@@ -36,6 +36,10 @@ Change `is_trusted_rater` through the Supabase SQL Editor using a database admin
 
 ## Rating scale
 
+The rating page compares a new title with configured reference titles, starting at score 5 when available. A deterministic midpoint search narrows the range, then the user picks a decimal. Scores 0 and 1 have direct shortcuts. With fewer than two usable references, the page offers a manual slider. Existing ratings can be replaced through the same flow. Only the final score is stored; comparison history stays in the browser.
+
+Run `pnpm test` for the comparison logic. `supabase/tests/rating_flow_save.sql` checks special scores and replacement through the existing ratings upsert inside a rolled-back transaction.
+
 `0` is the special bottom mark; `1` means not worth watching; `2.0` through `10.0` means worth watching, with one decimal. Each member can rate a title once and edit or delete their own rating. Reference titles represent integer scores 2 through 10; only admins can set them.
 
 ## Scripts

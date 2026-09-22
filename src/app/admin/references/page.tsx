@@ -12,7 +12,7 @@ export default async function ReferencesPage({ searchParams }: { searchParams: P
   const error = (await searchParams).error;
   return <main className="app-shell">
     <AppHeader admin />
-    <div className="page-heading"><p className="kicker">ADMINISTRATION</p><h1>Referenstitlar</h1><p className="muted">En titel för varje heltalsbetyg från 2 till 10. Dessa hjälper senare i jämförelseflödet.</p></div>
+    <div className="page-heading"><p className="kicker">ADMINISTRATION</p><h1>Referenstitlar</h1><p className="muted">En titel för varje heltalsbetyg från 2 till 10. Dessa används i jämförelseflödet.</p></div>
     {error && <p className="error-message">Kunde inte spara referensen. Titeln kanske redan används för ett annat betyg.</p>}
     <div className="reference-grid">{Array.from({ length: 9 }, (_, i) => i + 2).map((score) => {
       const title = byScore.get(score);
