@@ -19,7 +19,7 @@ export default async function MyRatingsPage() {
           <div className="list-poster"><Poster path={rating.titles.poster_path} title={rating.titles.title} size="list" /></div>
           <div><strong>{rating.titles.title}</strong><span>{rating.titles.release_year ?? "Year unknown"} · {rating.titles.media_type === "movie" ? "Movie" : "TV"}</span></div>
         </Link>
-        <div className="rating-item-end"><strong className="score-pill" aria-label={`Your rating ${Number(rating.score).toFixed(1)}`}>{Number(rating.score).toFixed(1)}</strong><DeleteRatingButton id={rating.id} title={rating.titles.title} /></div>
+        <div className="rating-item-end"><strong className="score-pill" aria-label={`Your rating ${Number(rating.score) < 2 ? Number(rating.score) : Number(rating.score).toFixed(1)}`}>{Number(rating.score) < 2 ? Number(rating.score) : Number(rating.score).toFixed(1)}</strong><DeleteRatingButton id={rating.id} title={rating.titles.title} /></div>
       </article>)}
     </div> : <div className="empty-state"><h2>No ratings yet</h2><p>Your collection starts with one film or show.</p><Link className="button primary" href="/rate">Find a title</Link></div>}
   </main>;

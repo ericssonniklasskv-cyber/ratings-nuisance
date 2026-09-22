@@ -41,11 +41,11 @@ export function RateForm({ title, current, references, officialRating }: Props) 
     {state.saved && state.score !== null ? <div className="rating-result" role="status">
       <p className="kicker">RATING SAVED</p>
       <h2>{title.title}</h2>
-      <div className="rating-summary"><div><span>Your rating</span><strong>{state.score.toFixed(1)}</strong></div><div><span>Group rating</span>{state.group ? <><strong>{state.group.score.toFixed(1)}</strong><small>{state.group.rating_count} trusted ratings</small></> : <p>No group rating yet</p>}</div></div>
+      <div className="rating-summary"><div><span>Your rating</span><strong>{ratingValue(state.score)}</strong></div><div><span>Group rating</span>{state.group ? <><strong>{state.group.score.toFixed(1)}</strong><small>{state.group.rating_count} trusted ratings</small></> : <p>No group rating yet</p>}</div></div>
       <div className="rating-result-actions"><Link className="button primary" href="/rate">Rate another</Link><Link className="button secondary" href="/my-ratings">My Ratings</Link></div>
     </div> : <>
       {current !== null && mode === "current" ? <div className="existing-rating">
-        <p className="kicker">YOUR RATING</p><strong className="existing-score">{current.toFixed(1)}</strong>
+        <p className="kicker">YOUR RATING</p><strong className="existing-score">{ratingValue(current)}</strong>
         {officialRating && <p className="muted">Group rating {officialRating.score.toFixed(1)} · {officialRating.rating_count} trusted ratings</p>}
         <div className="journey-actions"><button type="button" className="button primary" onClick={restart}>Rate again</button><button type="button" className="button ghost" onClick={() => setMode("manual")}>Edit manually</button></div>
       </div> : <>
@@ -70,7 +70,7 @@ export function RateForm({ title, current, references, officialRating }: Props) 
           <form action={action}><RatingFields title={title} score={finalScore} /><button className="button primary confirm-rating" disabled={pending}>{pending ? "Saving…" : "Save rating"}</button></form>
           <button type="button" className="text-button" onClick={back}>← Back</button>
         </div>)}
-        {mode === "manual" && <div className="manual-rating"><p className="kicker">MANUAL RATING</p><h2>Choose your rating</h2><strong>{manualScore.toFixed(1)}</strong><label htmlFor="manual-score">Rating from 0 to 10</label><input id="manual-score" type="range" min="0" max="82" step="1" value={manualIndex} onChange={(event) => setManualIndex(Number(event.target.value))} /><div className="slider-endpoints"><span>0 · Awful</span><span>10.0</span></div><p className="small muted">0 = awful · 1 = not worth watching · 2.0–10.0 = worth watching</p><form action={action}><RatingFields title={title} score={manualScore} /><button className="button primary confirm-rating" disabled={pending}>{pending ? "Saving…" : "Save rating"}</button></form>{!flow.fallback && <button type="button" className="text-button" onClick={() => setMode("compare")}>← Back to comparisons</button>}</div>}
+        {mode === "manual" && <div className="manual-rating"><p className="kicker">MANUAL RATING</p><h2>Choose your rating</h2><strong>{ratingValue(manualScore)}</strong><label htmlFor="manual-score">Rating from 0 to 10</label><input id="manual-score" type="range" min="0" max="82" step="1" value={manualIndex} onChange={(event) => setManualIndex(Number(event.target.value))} /><div className="slider-endpoints"><span>0 · Awful</span><span>10.0</span></div><p className="small muted">0 = awful · 1 = not worth watching · 2.0–10.0 = worth watching</p><form action={action}><RatingFields title={title} score={manualScore} /><button className="button primary confirm-rating" disabled={pending}>{pending ? "Saving…" : "Save rating"}</button></form>{!flow.fallback && <button type="button" className="text-button" onClick={() => setMode("compare")}>← Back to comparisons</button>}</div>}
         <div className="rating-quick-options"><span>NOT WORTH WATCHING?</span><form action={action}><RatingFields title={title} score={0} /><button disabled={pending}>0 · Awful</button></form><form action={action}><RatingFields title={title} score={1} /><button disabled={pending}>1 · Not worth watching</button></form></div>
       </>}
       {state.message && <p role="status" className={state.saved ? "success-message" : "error-message"}>{state.message}</p>}
