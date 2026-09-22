@@ -2,30 +2,43 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Poster } from "@/components/poster";
 
 type Entry = {
-  id: string; imdbId: string; title: string; year: number | null;
+  id: string; title: string; year: number | null;
   mediaType: string | null; tmdbId: number | null; posterPath: string | null;
-  attempted: boolean; rated: boolean;
+  attempted: boolean;
 };
 type SearchResult = { tmdbId: number; mediaType: "movie" | "tv"; title: string; releaseYear: number | null; posterPath: string | null };
 
-export function ImdbLibrary({ entries }: { entries: Entry[] }) {
+export function ImdbLibrary({ entries, total, page, query, seriesCount, pendingCount }: {
+  entries: Entry[]; total: number; page: number; query: string; seriesCount: number; pendingCount: number;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
-  const [showRated, setShowRated] = useState(false);
+  const [search, setSearch] = useState(query);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [matching, setMatching] = useState<Entry | null>(null);
   const [matchQuery, setMatchQuery] = useState("");
   const [matchResults, setMatchResults] = useState<SearchResult[]>([]);
-  const movies = entries.filter((entry) => entry.mediaType !== "tv");
-  const series = entries.filter((entry) => entry.mediaType === "tv");
-  const todo = movies.filter((entry) => !entry.rated).length;
-  const shown = movies.filter((entry) => (showRated || !entry.rated) && entry.title.toLowerCase().includes(query.toLowerCase()));
+  const pageCount = Math.max(1, Math.ceil(total / 40));
+  useEffect(() => () => { if (searchTimer.current) clearTimeout(searchTimer.current); }, []);
+
+  function queueUrl(nextPage: number, nextQuery = query) {
+    const params = new URLSearchParams({ tab: "to-rate" });
+    if (nextQuery) params.set("q", nextQuery);
+    if (nextPage > 1) params.set("page", String(nextPage));
+    return `/my-ratings?${params}`;
+  }
+
+  function updateSearch(value: string) {
+    setSearch(value);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => router.replace(queueUrl(1, value.trim())), 350);
+  }
 
   async function matchPending() {
     let processed = 0;
@@ -87,32 +100,31 @@ export function ImdbLibrary({ entries }: { entries: Entry[] }) {
     finally { setBusy(false); }
   }
 
-  return <div className="imdb-page">
-    <div className="page-heading"><p className="kicker">YOUR WATCH HISTORY</p><h1>From IMDb</h1>
-      <p>{todo} films to rate · {series.length} series saved for later</p></div>
+  return <section className="imdb-page" aria-label="Imported films to rate">
+    <div className="queue-heading"><div><h2>To Rate</h2><p>{total} {total === 1 ? "film" : "films"} in this view · {seriesCount} TV series saved for later</p></div></div>
     <div className="imdb-import-box">
       <p>Export your <a href="https://www.imdb.com/list/ratings/" target="_blank" rel="noreferrer">IMDb ratings</a> as a CSV, then import it here. IMDb scores are ignored; every title needs a new Nuisance rating.</p>
       <label className="button primary imdb-upload">{busy ? "Importing…" : "Choose IMDb CSV"}<input type="file" accept=".csv,text/csv" disabled={busy} onChange={upload} /></label>
-      {entries.some((entry) => !entry.attempted) && !busy && <button className="button" type="button" onClick={retry}>Resume matching</button>}
+      {pendingCount > 0 && !busy && <button className="button" type="button" onClick={retry}>Resume matching ({pendingCount})</button>}
       {progress && <p role="status">{progress}</p>}{error && <p className="error-message" role="alert">{error}</p>}
     </div>
+      <div className="imdb-controls"><input type="search" aria-label="Search films to rate" placeholder="Search films to rate" value={search} onChange={(event) => updateSearch(event.target.value)} />
+        {query && <Link className="text-button" href="/my-ratings?tab=to-rate">Clear search</Link>}</div>
     {entries.length > 0 && <>
-      <div className="imdb-controls"><input aria-label="Search imported titles" placeholder="Search imported titles" value={query} onChange={(event) => setQuery(event.target.value)} />
-        <label><input type="checkbox" checked={showRated} onChange={(event) => setShowRated(event.target.checked)} /> Show rated</label></div>
       {matching && <div className="imdb-match-panel"><div className="imdb-match-heading"><h2>Find {matching.title} on TMDb</h2><button className="text-button" onClick={() => { setMatching(null); setMatchResults([]); }} type="button">Close</button></div>
         <form onSubmit={(event) => { event.preventDefault(); void searchMatch(); }}><input aria-label="Search TMDb" value={matchQuery} onChange={(event) => setMatchQuery(event.target.value)} /><button className="button secondary" type="submit">Search</button></form>
         <div className="imdb-match-results">{matchResults.map((result) => <button key={`${result.mediaType}-${result.tmdbId}`} type="button" disabled={busy} onClick={() => saveMatch(result)}><div><Poster path={result.posterPath} title={result.title} size="list" /></div><span><strong>{result.title}</strong><small>{result.releaseYear ?? ""} · {result.mediaType === "tv" ? "TV" : "Movie"}</small></span></button>)}</div>
       </div>}
-      <div className="imdb-grid">{shown.map((entry) => <div key={entry.id} className="imdb-item">
+      <div className="imdb-grid">{entries.map((entry) => <div key={entry.id} className="imdb-item">
         {entry.tmdbId && (entry.mediaType === "movie" || entry.mediaType === "tv") ? <Link href={`/rate/${entry.mediaType}/${entry.tmdbId}`} aria-label={`Rate ${entry.title}`}>
-          <Poster path={entry.posterPath} title={entry.title} size="collection" /><strong>{entry.title}</strong><span>{entry.year ?? ""} · {entry.rated ? "Rated" : "Rate in Nuisance →"}</span>
+          <Poster path={entry.posterPath} title={entry.title} size="collection" /><strong>{entry.title}</strong><span>{entry.year ?? ""} · Rate in Nuisance →</span>
         </Link> : <><Poster path={entry.posterPath} title={entry.title} size="collection" /><strong>{entry.title}</strong><span>{entry.year ?? ""} · {entry.attempted ? "No TMDb match" : "Matching pending"}</span>
           {entry.attempted && <button className="text-button imdb-find" type="button" onClick={() => { setMatching(entry); setMatchQuery(entry.title); setMatchResults([]); }}>Find match</button>}</>}
       </div>)}</div>
-      {!shown.length && <p className="empty-state">No titles match this view.</p>}
-      {series.length > 0 && <details className="imdb-series"><summary>TV series saved for later ({series.length})</summary>
-        <ul>{series.map((entry) => <li key={entry.id}>{entry.title}{entry.year ? ` (${entry.year})` : ""}</li>)}</ul>
-      </details>}
     </>}
-  </div>;
+    {!entries.length && <div className="library-no-results"><h2>{query ? `No imported films match “${query}”` : "No films waiting to be rated"}</h2><p>{query ? "Try another title or clear the search." : "Import your IMDb ratings above or find a title to rate."}</p></div>}
+    {total > 40 && <nav className="queue-pagination" aria-label="Imported films pages"><span>Page {Math.min(page, pageCount)} of {pageCount}</span>
+      <div>{page > 1 && <Link className="button secondary" href={queueUrl(page - 1)}>Previous</Link>}{page < pageCount && <Link className="button secondary" href={queueUrl(page + 1)}>Next</Link>}</div>
+    </nav>}
+  </section>;
 }

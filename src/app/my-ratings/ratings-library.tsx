@@ -33,8 +33,7 @@ export function RatingsLibrary({ ratings }: { ratings: Rating[] }) {
     });
   }, [ratings, query, sortOrder]);
 
-  return <section className="my-ratings-library" aria-label="My Ratings">
-    <div className="library-heading"><div><h1>My Ratings</h1><p>{ratings.length} {ratings.length === 1 ? "title" : "titles"}</p></div></div>
+  return <section className="my-ratings-library" aria-label="Rated titles">
     <div className="library-controls">
       <label className="library-search"><span className="visually-hidden">Search your ratings</span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" strokeWidth="1.8" /><path d="m16 16 5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg><input type="search" placeholder="Search your ratings" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
       <label className="library-sort"><span className="visually-hidden">Sort ratings</span><select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}><option value="highest">Highest rated</option><option value="lowest">Lowest rated</option><option value="recent">Recently rated</option></select></label>
