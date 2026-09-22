@@ -15,6 +15,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
         <Link href="/rate" className="home-action home-action-primary"><span>Rate something</span><span aria-hidden="true">↗</span></Link>
         <Link href="/my-ratings" className="home-action"><span>My Ratings</span><span aria-hidden="true">↗</span></Link>
       </div>
+      <p className="home-import-link"><Link href="/imdb">Bring your IMDb watch history →</Link></p>
     </section>
   </main>;
 

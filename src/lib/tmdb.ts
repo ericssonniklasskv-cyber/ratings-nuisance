@@ -58,6 +58,14 @@ export async function getTmdbTitle(type: MediaType, id: number): Promise<TmdbTit
   }
 }
 
+export async function findTmdbTitleByImdbId(imdbId: string): Promise<TmdbTitle | null> {
+  const params = new URLSearchParams({ external_source: "imdb_id", language: "en-US" });
+  const data = await tmdbFetch(`/find/${encodeURIComponent(imdbId)}?${params}`);
+  const movie = (data.movie_results as RawTitle[] | undefined)?.[0];
+  const tv = (data.tv_results as RawTitle[] | undefined)?.[0];
+  return movie ? normalize(movie, "movie") : tv ? normalize(tv, "tv") : null;
+}
+
 export function posterUrl(path: string | null, width: "w185" | "w342" = "w342") {
   return path ? `https://image.tmdb.org/t/p/${width}${path}` : null;
 }
