@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Poster } from "@/components/poster";
 import { RateForm, type RatingReference } from "@/app/rate/rate-form";
 import type { TmdbTitle } from "@/lib/tmdb";
+import type { PersonalAnchor } from "@/lib/personal-placement";
 
 type GroupRating = { score: number; rating_count: number } | null;
 type MemberRating = { id: string; displayName: string; isOwn: boolean; score: number };
@@ -15,6 +16,9 @@ type Props = {
   officialRating: GroupRating;
   ratings: MemberRating[];
   references: RatingReference[];
+  personalAnchors: PersonalAnchor[];
+  personalUnavailable: boolean;
+  currentTitleId: string | null;
   ratingsUnavailable: boolean;
   groupUnavailable: boolean;
   referencesUnavailable: boolean;
@@ -22,14 +26,14 @@ type Props = {
 
 function scoreLabel(score: number) { return score < 2 ? String(score) : score.toFixed(1); }
 
-export function TitleDetail({ title, current, officialRating, ratings, references, ratingsUnavailable, groupUnavailable, referencesUnavailable }: Props) {
+export function TitleDetail({ title, current, officialRating, ratings, references, personalAnchors, personalUnavailable, currentTitleId, ratingsUnavailable, groupUnavailable, referencesUnavailable }: Props) {
   const router = useRouter();
   const [rating, setRating] = useState(false);
 
   if (rating) return <div className="title-rating-mode">
     <button type="button" className="text-button title-back" onClick={() => { setRating(false); router.refresh(); }}>← Back to title</button>
     {referencesUnavailable ? <p role="alert" className="error-message">Could not load reference titles. Try again in a moment.</p>
-      : <RateForm title={title} current={null} references={references} officialRating={groupUnavailable ? null : officialRating} />}
+      : <RateForm title={title} current={null} references={references} personalAnchors={personalAnchors} personalUnavailable={personalUnavailable} currentTitleId={currentTitleId} officialRating={groupUnavailable ? null : officialRating} />}
   </div>;
 
   return <article className="title-detail">
