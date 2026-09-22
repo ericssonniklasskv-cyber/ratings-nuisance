@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  answerComparison, manualIndexFromScore, manualScoreFromIndex, startComparison,
+  answerComparison, manualIndexFromScore, manualScoreFromIndex, rewindComparison, startComparison,
 } from "../src/lib/rating-comparison.ts";
 
 const allReferences = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -54,4 +54,13 @@ test("manual scale preserves special scores 0 and 1", () => {
   assert.equal(manualScoreFromIndex(2), 2);
   assert.equal(manualScoreFromIndex(82), 10);
   assert.equal(manualIndexFromScore(6.7), 49);
+});
+
+test("back restores the previous comparison, including from fine tuning", () => {
+  const first = startComparison(allReferences);
+  const second = answerComparison(first, "better");
+  const third = answerComparison(second, "same");
+  assert.equal(rewindComparison(third).currentReference, second.currentReference);
+  assert.deepEqual(rewindComparison(third).history, second.history);
+  assert.equal(rewindComparison(second).currentReference, first.currentReference);
 });

@@ -1,34 +1,31 @@
 import Link from "next/link";
 import { getViewer } from "@/lib/auth";
+import { AppHeader } from "@/components/app-header";
 import { LoginForm } from "./login-form";
-import { signOut } from "./actions";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ auth_error?: string }> }) {
   const { user, profile } = await getViewer();
   const { auth_error } = await searchParams;
-  return (
-    <main className="home-shell">
-      <div className="eyebrow">PRIVATE FILM CLUB</div>
-      <h1 className="brand-title">Nuisance<span className="brand-dot">.</span></h1>
-      {!user ? (
-        <section className="intro-card">
-          <p className="kicker">EN ANNAN SORTS FILMSKALA</p>
-          <h2>Vad är något värt att se?</h2>
-          <p className="muted">Logga in med Google eller e-postlänk för att sätta betyg och se gruppens omdömen.</p>
-          {auth_error && <p role="alert" className="error-message">Inloggningen kunde inte slutföras. Försök igen eller använd e-postlänken.</p>}
-          <LoginForm />
-        </section>
-      ) : (
-        <section className="dashboard">
-          <div className="welcome-row"><div><p className="kicker">VÄLKOMMEN TILLBAKA</p><h2>Hej, {profile?.display_name ?? user.email ?? "vän"}</h2></div><form action={signOut}><button className="text-button">Logga ut</button></form></div>
-          <div className="choice-grid">
-            <Link href="/rate" className="choice-card rate-choice"><span className="choice-number">01 / DISCOVER</span><span className="choice-label">Rate <span aria-hidden>↗</span></span><span className="choice-description">Hitta en film eller serie och sätt ditt betyg.</span></Link>
-            <Link href="/my-ratings" className="choice-card ratings-choice"><span className="choice-number">02 / YOUR COLLECTION</span><span className="choice-label">My Ratings <span aria-hidden>↗</span></span><span className="choice-description">Se vad du har sett och hur du rankat det.</span></Link>
-          </div>
-          {profile?.is_admin && <p className="admin-link"><Link href="/admin/references">Hantera referenstitlar →</Link></p>}
-        </section>
-      )}
-      <footer>Film- och seriedata från <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDb</a>. This product uses the TMDb API but is not endorsed or certified by TMDb.</footer>
-    </main>
-  );
+  if (user) return <main className="app-shell">
+    <AppHeader admin={profile?.is_admin ?? false} />
+    <section className="home-content">
+      <p className="eyebrow">YOUR FILM CLUB</p>
+      <h1>What will you rate next?</h1>
+      <div className="home-actions">
+        <Link href="/rate" className="home-action home-action-primary"><span>Rate something</span><span aria-hidden="true">↗</span></Link>
+        <Link href="/my-ratings" className="home-action"><span>My Ratings</span><span aria-hidden="true">↗</span></Link>
+      </div>
+    </section>
+  </main>;
+
+  return <main className="login-shell">
+    <div className="login-content">
+      <p className="eyebrow">PRIVATE FILM CLUB</p>
+      <h1 className="login-wordmark">Nuisance<span>.</span></h1>
+      <p className="login-tagline">Movies rated against movies.</p>
+      {auth_error && <p role="alert" className="error-message">Sign in failed. Try again or use an email link.</p>}
+      <LoginForm />
+    </div>
+    <footer>Film and TV data from <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDb</a>. This product uses the TMDb API but is not endorsed or certified by TMDb.</footer>
+  </main>;
 }
