@@ -1,9 +1,18 @@
 import Image from "next/image";
 import { posterUrl } from "@/lib/tmdb";
 
-export function Poster({ path, title, priority = false }: { path: string | null; title: string; priority?: boolean }) {
-  const src = posterUrl(path);
+type PosterSize = "search" | "comparison" | "list" | "detail" | "reference";
+const sizes: Record<PosterSize, string> = {
+  search: "(max-width: 700px) 64px, 72px",
+  comparison: "(max-width: 700px) 33vw, 175px",
+  list: "(max-width: 700px) 64px, 72px",
+  detail: "(max-width: 700px) 52px, 180px",
+  reference: "52px",
+};
+
+export function Poster({ path, title, priority = false, size = "search" }: { path: string | null; title: string; priority?: boolean; size?: PosterSize }) {
+  const src = posterUrl(path, size === "search" || size === "list" || size === "reference" ? "w185" : "w342");
   return <div className="poster">
-    {src ? <Image src={src} alt={`Poster: ${title}`} fill sizes="(max-width: 640px) 40vw, 170px" priority={priority} /> : <span className="poster-empty">NO POSTER</span>}
+    {src ? <Image src={src} alt="" fill sizes={sizes[size]} priority={priority} /> : <span className="poster-empty" aria-label={`No poster for ${title}`}>No poster</span>}
   </div>;
 }

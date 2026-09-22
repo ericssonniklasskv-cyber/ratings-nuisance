@@ -58,6 +58,6 @@ export async function getTmdbTitle(type: MediaType, id: number): Promise<TmdbTit
   }
 }
 
-export function posterUrl(path: string | null) {
-  return path ? `https://image.tmdb.org/t/p/w342${path}` : null;
+export function posterUrl(path: string | null, width: "w185" | "w342" = "w342") {
+  return path ? `https://image.tmdb.org/t/p/${width}${path}` : null;
 }

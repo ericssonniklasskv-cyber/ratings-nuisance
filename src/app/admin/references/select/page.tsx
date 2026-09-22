@@ -8,5 +8,5 @@ export default async function SelectReferencePage({ searchParams }: { searchPara
   await requireAdmin();
   const score = Number((await searchParams).score);
   if (!Number.isInteger(score) || score < 2 || score > 10) notFound();
-  return <main className="app-shell"><AppHeader admin /><Link className="back-link" href="/admin/references">← Referenstitlar</Link><div className="page-heading"><p className="kicker">REFERENS {score}</p><h1>Välj en titel</h1><p className="muted">Sök efter filmen eller serien som ska representera betyg {score}.</p></div><TitleSearch mode="reference" referenceScore={score} /></main>;
+  return <main className="app-shell"><AppHeader admin /><Link className="back-link" href="/admin/references">← References</Link><div className="page-heading"><p className="kicker">REFERENCE {score}</p><h1>Choose a title</h1><p className="muted">Choose the movie or show that represents {score}.</p></div><TitleSearch mode="reference" referenceScore={score} /></main>;
 }

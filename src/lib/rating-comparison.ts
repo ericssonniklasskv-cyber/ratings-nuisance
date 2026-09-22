@@ -82,6 +82,13 @@ export function answerComparison(state: ComparisonState, answer: ComparisonAnswe
   };
 }
 
+export function rewindComparison(state: ComparisonState): ComparisonState {
+  return state.history.slice(0, -1).reduce(
+    (previous, step) => answerComparison(previous, step.answer),
+    startComparison(state.references),
+  );
+}
+
 export function manualScoreFromIndex(index: number) {
   if (!Number.isInteger(index) || index < 0 || index > 82) throw new RangeError("Invalid manual rating index");
   return index <= 1 ? index : (index + 18) / 10;

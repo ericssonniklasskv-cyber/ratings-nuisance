@@ -18,7 +18,7 @@ export function LoginForm() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) {
-      setGoogleError("Google-inloggning är inte tillgänglig just nu. Använd e-postlänken tills vidare.");
+      setGoogleError("Google sign-in is unavailable. Try an email link instead.");
       setGooglePending(false);
     }
   }
@@ -27,18 +27,18 @@ export function LoginForm() {
     <div className="login-options">
       <button type="button" className="button google-button" onClick={continueWithGoogle} disabled={googlePending}>
         <span className="google-mark" aria-hidden="true">G</span>
-        {googlePending ? "Öppnar Google…" : "Continue with Google"}
+        {googlePending ? "Opening Google…" : "Continue with Google"}
       </button>
       {googleError && <p role="alert" className="error-message">{googleError}</p>}
-      <div className="login-divider"><span>eller med e-postlänk</span></div>
+      <details className="email-option"><summary>Use email instead</summary>
       <form action={action} className="login-form">
-        <label htmlFor="email">E-postadress</label>
+        <label htmlFor="email">Email address</label>
         <div className="login-row">
-          <input id="email" name="email" type="email" autoComplete="email" placeholder="du@exempel.se" required />
-          <button className="button primary" disabled={pending}>{pending ? "Skickar…" : "Skicka länk"}</button>
+          <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+          <button className="button secondary" disabled={pending}>{pending ? "Sending…" : "Send link"}</button>
         </div>
         {state.message && <p role="status" className="form-message">{state.message}</p>}
-      </form>
+      </form></details>
     </div>
   );
 }

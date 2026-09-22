@@ -6,15 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function sendMagicLink(_state: { message: string }, formData: FormData) {
   const email = String(formData.get("email") || "").trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { message: "Ange en giltig e-postadress." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { message: "Enter a valid email address." };
   const origin = (await headers()).get("origin");
-  if (!origin) return { message: "Kunde inte avgöra appens adress." };
+  if (!origin) return { message: "Could not determine this app's address." };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: `${origin}/auth/callback`, shouldCreateUser: true },
   });
-  return { message: error ? "Kunde inte skicka länken. Försök igen." : "Kolla din inkorg efter inloggningslänken." };
+  return { message: error ? "Could not send the link. Try again." : "Check your inbox for the sign-in link." };
 }
 
 export async function signOut() {

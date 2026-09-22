@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { Poster } from "@/components/poster";
+import { DeleteRatingButton } from "@/components/delete-rating-button";
 import { requireMember } from "@/lib/auth";
-import { deleteRating } from "@/app/rate/actions";
 
 export default async function MyRatingsPage() {
   const { supabase, user, profile } = await requireMember();
@@ -12,15 +12,15 @@ export default async function MyRatingsPage() {
 
   return <main className="app-shell">
     <AppHeader admin={profile?.is_admin ?? false} />
-    <div className="page-heading"><p className="kicker">02 / YOUR COLLECTION</p><h1>My Ratings</h1><p className="muted">Dina betyg, senast uppdaterade först.</p></div>
-    {error ? <p className="error-message">Kunde inte läsa dina betyg.</p> : ratings?.length ? <div className="rating-list">
+    <div className="page-heading"><p className="kicker">YOUR COLLECTION</p><h1>My Ratings</h1><p className="muted">Most recently rated first</p></div>
+    {error ? <p className="error-message">Could not load your ratings.</p> : ratings?.length ? <div className="rating-list">
       {ratings.map((rating) => rating.titles && <article className="rating-item" key={rating.id}>
         <Link className="rating-item-main" href={`/rate/${rating.titles.media_type}/${rating.titles.tmdb_id}`}>
-          <div className="list-poster"><Poster path={rating.titles.poster_path} title={rating.titles.title} /></div>
-          <div><strong>{rating.titles.title}</strong><span>{rating.titles.release_year ?? "År okänt"} · {rating.titles.media_type === "movie" ? "Film" : "TV"}</span><small>TMDb #{rating.titles.tmdb_id}</small></div>
+          <div className="list-poster"><Poster path={rating.titles.poster_path} title={rating.titles.title} size="list" /></div>
+          <div><strong>{rating.titles.title}</strong><span>{rating.titles.release_year ?? "Year unknown"} · {rating.titles.media_type === "movie" ? "Movie" : "TV"}</span></div>
         </Link>
-        <div className="rating-item-end"><strong className="score-pill">{Number(rating.score).toFixed(1)}</strong><form action={deleteRating}><input type="hidden" name="ratingId" value={rating.id} /><button className="text-button danger" aria-label={`Ta bort betyg för ${rating.titles.title}`}>Ta bort</button></form></div>
+        <div className="rating-item-end"><strong className="score-pill" aria-label={`Your rating ${Number(rating.score) < 2 ? Number(rating.score) : Number(rating.score).toFixed(1)}`}>{Number(rating.score) < 2 ? Number(rating.score) : Number(rating.score).toFixed(1)}</strong><DeleteRatingButton id={rating.id} title={rating.titles.title} /></div>
       </article>)}
-    </div> : <div className="empty-state"><h2>Inga betyg än</h2><p>Din lista fylls när du börjar sätta betyg.</p><Link className="button primary" href="/rate">Hitta en titel</Link></div>}
+    </div> : <div className="empty-state"><h2>No ratings yet</h2><p>Your collection starts with one film or show.</p><Link className="button primary" href="/rate">Find a title</Link></div>}
   </main>;
 }
