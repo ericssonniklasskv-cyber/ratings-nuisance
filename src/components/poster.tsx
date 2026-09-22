@@ -6,7 +6,7 @@ const sizes: Record<PosterSize, string> = {
   search: "(max-width: 700px) 64px, 72px",
   comparison: "(max-width: 700px) 33vw, 175px",
   list: "(max-width: 700px) 64px, 72px",
-  detail: "(max-width: 700px) 52px, 180px",
+  detail: "(max-width: 700px) 105px, 210px",
   reference: "52px",
   collection: "(max-width: 700px) calc((100vw - 44px) / 2), (max-width: 1000px) calc((100vw - 112px) / 4), 195px",
 };
