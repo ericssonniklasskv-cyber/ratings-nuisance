@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nuisance — Private Film Club",
+  title: "nuisance",
   description: "Private ratings for films and TV, shared with friends.",
 };
 

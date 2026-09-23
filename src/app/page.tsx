@@ -21,10 +21,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
 
   return <main className="login-shell">
     <div className="login-content">
-      <p className="eyebrow">PRIVATE FILM CLUB</p>
-      <h1 className="login-wordmark">Nuisance<span>.</span></h1>
-      <p className="login-tagline">Movies rated against movies.</p>
-      {auth_error && <p role="alert" className="error-message">Sign in failed. Try again or use an email link.</p>}
+      <h1 className="login-wordmark">nuisance</h1>
+      {auth_error && <p role="alert" className="error-message">Sign in failed. Please try Google again.</p>}
       <LoginForm />
     </div>
     <footer>Film and TV data from <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDb</a>. This product uses the TMDb API but is not endorsed or certified by TMDb.</footer>
