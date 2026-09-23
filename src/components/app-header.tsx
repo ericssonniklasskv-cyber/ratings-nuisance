@@ -7,7 +7,7 @@ import { signOut } from "@/app/actions";
 export function AppHeader({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const links = [
-    { href: "/rate", label: "Rate", active: pathname.startsWith("/rate") },
+    { href: "/rate", label: "Gandalf", active: pathname.startsWith("/rate") },
     { href: "/my-ratings", label: "Sazed", active: pathname.startsWith("/my-ratings") },
   ];
 
