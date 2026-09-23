@@ -37,7 +37,7 @@ export function TitleDetail({ title, current, officialRating, ratings, reference
   </div>;
 
   return <article className="title-detail">
-    <Link className="title-back" href={current === null ? "/rate" : "/my-ratings"}>← {current === null ? "Back to search" : "Back to My Ratings"}</Link>
+    <Link className="title-back" href={current === null ? "/rate" : "/my-ratings"}>← {current === null ? "Back to search" : "Back to Sazed"}</Link>
     <div className="title-overview">
       <div className="title-detail-poster"><Poster path={title.posterPath} title={title.title} size="detail" priority /></div>
       <div className="title-detail-content">

@@ -40,7 +40,7 @@ export default async function MyRatingsPage({ searchParams }: { searchParams: Pr
       redirect(`/my-ratings?${params}`);
     }
     return <main className="app-shell"><AppHeader admin={profile?.is_admin ?? false} />
-      <div className="ratings-page-heading"><h1>My Ratings</h1><nav className="ratings-tabs" aria-label="Rating library">
+      <div className="ratings-page-heading"><h1>Sazed</h1><nav className="ratings-tabs" aria-label="Rating library">
         <Link href="/my-ratings">Rated <span>{ratedCount ?? 0}</span></Link>
         <Link href="/my-ratings?tab=to-rate" aria-current="page">To Rate <span>{toRateCount ?? 0}</span></Link>
       </nav></div>
@@ -66,12 +66,12 @@ export default async function MyRatingsPage({ searchParams }: { searchParams: Pr
     releaseYear: rating.titles.release_year,
   }] : []);
   return <main className="app-shell"><AppHeader admin={profile?.is_admin ?? false} />
-    <div className="ratings-page-heading"><h1>My Ratings</h1><nav className="ratings-tabs" aria-label="Rating library">
+    <div className="ratings-page-heading"><h1>Sazed</h1><nav className="ratings-tabs" aria-label="Rating library">
       <Link href="/my-ratings" aria-current="page">Rated <span>{collection.length}</span></Link>
       <Link href="/my-ratings?tab=to-rate">To Rate <span>{toRateCount ?? 0}</span></Link>
     </nav></div>
     {error ? <div className="my-ratings-empty"><p className="error-message">Could not load your ratings.</p></div>
       : collection.length ? <RatingsLibrary ratings={collection} />
-        : <div className="my-ratings-empty"><h2>No ratings yet</h2><p>Start with a title from your IMDb queue or search for something new.</p><div className="ratings-empty-actions"><Link className="button primary" href="/my-ratings?tab=to-rate">View To Rate</Link><Link className="button secondary" href="/rate">Rate something</Link></div></div>}
+        : <div className="my-ratings-empty"><h2>No ratings yet</h2><p>Start with a title from your IMDb queue or search for something new.</p><div className="ratings-empty-actions"><Link className="button primary" href="/my-ratings?tab=to-rate">View To Rate</Link><Link className="button secondary" href="/rate">Gandalf</Link></div></div>}
   </main>;
 }
