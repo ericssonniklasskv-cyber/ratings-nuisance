@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getViewer } from "@/lib/auth";
 import { AppHeader } from "@/components/app-header";
 import { LoginForm } from "./login-form";
@@ -10,6 +11,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
     <AppHeader admin={profile?.is_admin ?? false} />
     <section className="home-content">
       <h1 className="visually-hidden">Home</h1>
+      <Image className="home-symbol" src="/branding/nuisance-face.webp" alt="Golden face symbol" width={420} height={565} sizes="(max-width: 353px) 120px, (max-width: 700px) 34vw, 164px" priority />
       <div className="home-actions">
         <Link href="/rate" className="home-action">Gandalf</Link>
         <Link href="/my-ratings" className="home-action">Sazed</Link>
