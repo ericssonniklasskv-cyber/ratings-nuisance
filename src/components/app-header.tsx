@@ -8,12 +8,12 @@ export function AppHeader({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const links = [
     { href: "/rate", label: "Rate", active: pathname.startsWith("/rate") },
-    { href: "/my-ratings", label: "My Ratings", active: pathname.startsWith("/my-ratings") },
+    { href: "/my-ratings", label: "Sazed", active: pathname.startsWith("/my-ratings") },
   ];
 
   return <>
     <header className="app-header">
-      <Link href="/" className="wordmark" aria-label="Nuisance home">Nuisance<span>.</span></Link>
+      <Link href="/" className="wordmark" aria-label="nuisance home">nuisance</Link>
       <nav className="desktop-nav" aria-label="Main navigation">
         {links.map((link) => <Link key={link.href} href={link.href} aria-current={link.active ? "page" : undefined}>{link.label}</Link>)}
       </nav>

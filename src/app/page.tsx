@@ -9,13 +9,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
   if (user) return <main className="app-shell">
     <AppHeader admin={profile?.is_admin ?? false} />
     <section className="home-content">
-      <p className="eyebrow">YOUR FILM CLUB</p>
-      <h1>What will you rate next?</h1>
+      <h1 className="home-wordmark">nuisance</h1>
       <div className="home-actions">
-        <Link href="/rate" className="home-action home-action-primary"><span>Rate something</span><span aria-hidden="true">↗</span></Link>
-        <Link href="/my-ratings" className="home-action"><span>My Ratings</span><span aria-hidden="true">↗</span></Link>
+        <Link href="/rate" className="home-action home-action-primary"><span>Gandalf</span><span aria-hidden="true">↗</span></Link>
+        <Link href="/my-ratings" className="home-action"><span>Sazed</span><span aria-hidden="true">↗</span></Link>
       </div>
-      <p className="home-import-link"><Link href="/my-ratings?tab=to-rate">Bring your IMDb watch history →</Link></p>
+      <p className="home-import-link"><Link href="/my-ratings?tab=to-rate">John A. Roebling →</Link></p>
     </section>
   </main>;
 

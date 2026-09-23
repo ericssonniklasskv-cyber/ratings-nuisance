@@ -147,7 +147,7 @@ export function RateForm({ title, current, references, personalAnchors, personal
       <p className="kicker">RATING SAVED</p>
       <h1>{title.title}</h1>
       <div className="rating-summary"><div><span>Your rating</span><strong>{ratingValue(state.score)}</strong></div><div><span>Group rating</span>{state.group ? <><strong>{state.group.score.toFixed(1)}</strong><small>{state.group.rating_count} trusted ratings</small></> : <p>No group rating yet</p>}</div></div>
-      <div className="rating-result-actions"><Link className="button primary" href="/rate">Rate another</Link><Link className="button secondary" href="/my-ratings">My Ratings</Link></div>
+      <div className="rating-result-actions"><Link className="button primary" href="/rate">Rate another</Link><Link className="button secondary" href="/my-ratings">Sazed</Link></div>
     </div> : <>
       {mode === "current" && current !== null && <div className="existing-rating">
         <p className="kicker">YOUR RATING</p><h1>{title.title}</h1><strong className="existing-score">{ratingValue(current)}</strong>

@@ -22,6 +22,11 @@ export function TitleSearch({ mode = "rate", referenceScore }: { mode?: "rate" |
   const [resultQuery, setResultQuery] = useState("");
   const normalizedQuery = query.trim();
   const visibleResults = resultQuery === normalizedQuery ? results : [];
+  const searchStatus = loading ? "Searching…" : message || (
+    normalizedQuery.length < 2
+      ? mode === "reference" ? "Search movies and TV shows" : ""
+      : resultQuery === normalizedQuery ? `${visibleResults.length} titles` : "Searching…"
+  );
 
   useEffect(() => {
     const term = query.trim();
@@ -48,9 +53,9 @@ export function TitleSearch({ mode = "rate", referenceScore }: { mode?: "rate" |
   }, [query]);
 
   return <div className="search-block">
-    <label className="search-label" htmlFor="title-search">Movie or TV show</label>
-    <input id="title-search" className="search-input" value={query} onChange={(event) => { const value = event.target.value; setQuery(value); setMessage(""); const term = value.trim(); if (term.length < 2) { setResults([]); setLoading(false); } else { const cached = cachedResults(term); if (cached) { setResults(cached); setResultQuery(term); setLoading(false); } else setLoading(true); } }} placeholder="Search titles…" autoComplete="off" />
-    <div className="search-meta" aria-live="polite">{loading ? "Searching…" : message || (normalizedQuery.length < 2 ? "Search movies and TV shows" : resultQuery === normalizedQuery ? `${visibleResults.length} titles` : "Searching…")}</div>
+    {mode === "reference" && <label className="search-label" htmlFor="title-search">Movie or TV show</label>}
+    <input id="title-search" aria-label={mode === "rate" ? "Search movie or TV titles" : undefined} className="search-input" value={query} onChange={(event) => { const value = event.target.value; setQuery(value); setMessage(""); const term = value.trim(); if (term.length < 2) { setResults([]); setLoading(false); } else { const cached = cachedResults(term); if (cached) { setResults(cached); setResultQuery(term); setLoading(false); } else setLoading(true); } }} placeholder="Search titles…" autoComplete="off" />
+    <div className="search-meta" aria-live="polite">{searchStatus}</div>
     <div className="results-grid">
       {loading && <div className="search-skeleton" aria-hidden="true">{[1, 2, 3].map((item) => <div className="result-skeleton" key={item}><span /><i /></div>)}</div>}
       {!loading && visibleResults.map((item) => {
