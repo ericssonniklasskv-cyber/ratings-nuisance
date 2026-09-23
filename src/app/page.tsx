@@ -9,10 +9,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
   if (user) return <main className="app-shell">
     <AppHeader admin={profile?.is_admin ?? false} />
     <section className="home-content">
-      <h1 className="home-wordmark">nuisance</h1>
+      <h1 className="visually-hidden">Home</h1>
       <div className="home-actions">
-        <Link href="/rate" className="home-action home-action-primary"><span>Gandalf</span><span aria-hidden="true">↗</span></Link>
-        <Link href="/my-ratings" className="home-action"><span>Sazed</span><span aria-hidden="true">↗</span></Link>
+        <Link href="/rate" className="home-action">Gandalf</Link>
+        <Link href="/my-ratings" className="home-action">Sazed</Link>
       </div>
       <p className="home-import-link"><Link href="/my-ratings?tab=to-rate">John A. Roebling →</Link></p>
     </section>
