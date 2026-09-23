@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getViewer } from "@/lib/auth";
 import { AppHeader } from "@/components/app-header";
 import { LoginForm } from "./login-form";
+import { GatekeeperIntro } from "./gatekeeper-intro";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ auth_error?: string }> }) {
   const { user, profile } = await getViewer();
@@ -20,12 +21,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
     </section>
   </main>;
 
-  return <main className="login-shell">
+  return <GatekeeperIntro>
+    <main className="login-shell">
     <div className="login-content">
       <h1 className="login-wordmark">nuisance</h1>
       {auth_error && <p role="alert" className="error-message">Sign in failed. Please try Google again.</p>}
       <LoginForm />
     </div>
     <footer>Film and TV data from <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDb</a>. This product uses the TMDb API but is not endorsed or certified by TMDb.</footer>
-  </main>;
+    </main>
+  </GatekeeperIntro>;
 }
