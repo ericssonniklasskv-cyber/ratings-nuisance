@@ -78,8 +78,8 @@
 
 /* Temporary video playback diagnostics, enabled only by the Preview-only component flag. */
 .gatekeeper-portrait-video.is-diagnostic{opacity:1!important;transition:filter 120ms linear!important}
-.gatekeeper-portrait-video.is-diagnostic[data-debug-frame="0"]{filter:brightness(.78) saturate(2.8) hue-rotate(0deg) drop-shadow(0 0 10px rgba(67,255,142,.95))!important}
-.gatekeeper-portrait-video.is-diagnostic[data-debug-frame="1"]{filter:brightness(1.55) saturate(3.2) hue-rotate(248deg) drop-shadow(0 0 16px rgba(255,45,202,.98))!important}
+.gatekeeper-portrait-video.has-diagnostic-pulse[data-debug-frame="0"]{filter:brightness(.78) saturate(2.8) hue-rotate(0deg) drop-shadow(0 0 10px rgba(67,255,142,.95))!important}
+.gatekeeper-portrait-video.has-diagnostic-pulse[data-debug-frame="1"]{filter:brightness(1.55) saturate(3.2) hue-rotate(248deg) drop-shadow(0 0 16px rgba(255,45,202,.98))!important}
 .gatekeeper-video-debug{position:fixed;z-index:50;right:8px;bottom:8px;display:flex;max-width:min(100vw - 16px,460px);flex-direction:column;gap:2px;margin:0;padding:10px 12px;border:1px solid #f6f6f6;background:#000e;color:#fff;font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:left;overflow-wrap:anywhere}
 .gatekeeper-video-debug strong{margin-bottom:3px;color:#fff;font-size:12px}
 @media(max-width:700px){.gatekeeper-video-debug{right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);font-size:10px}}

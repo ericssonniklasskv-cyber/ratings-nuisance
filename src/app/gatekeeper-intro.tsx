@@ -19,6 +19,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
   const [symbolVisible, setSymbolVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [diagnosticMotionOverride, setDiagnosticMotionOverride] = useState(false);
+  const [diagnosticPulseEnabled, setDiagnosticPulseEnabled] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -180,7 +181,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
           {useVideo && (
             <video
               ref={videoRef}
-              className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}${diagnosticsEnabled ? " is-diagnostic" : ""}`}
+              className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}${diagnosticsEnabled ? " is-diagnostic" : ""}${diagnosticsEnabled && diagnosticPulseEnabled ? " has-diagnostic-pulse" : ""}`}
               data-debug-frame={Math.floor((videoDiagnostics.currentTime % 1.4) / 0.7)}
               src="/branding/gatekeeper-idle/idle.webm"
               poster="/branding/nuisance-face.webp"
@@ -218,6 +219,9 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
             <span>ended: {videoDiagnostics.ended ? "yes" : "no"} · error: {videoDiagnostics.error ?? "none"}</span>
             <span>video layer: opacity {videoDiagnostics.opacity} · z-index {videoDiagnostics.zIndex} · blend {videoDiagnostics.mixBlendMode} · {videoDiagnostics.box}</span>
             <span>system reduced motion: {prefersReducedMotion ? "yes" : "no"} · playback override: {diagnosticMotionOverride ? "on" : "off"}</span>
+            <button className="gatekeeper-video-debug-action" type="button" onClick={() => setDiagnosticPulseEnabled((enabled) => !enabled)}>
+              {diagnosticPulseEnabled ? "Show original video colors" : "Show diagnostic color pulse"}
+            </button>
             {prefersReducedMotion && (
               <button className="gatekeeper-video-debug-action" type="button" onClick={() => setDiagnosticMotionOverride((enabled) => !enabled)}>
                 {diagnosticMotionOverride ? "Use system motion setting" : "Force playback test"}
