@@ -15,6 +15,8 @@ type LinePhase = "entering" | "holding" | "exiting";
 export function GatekeeperIntro({ children }: { children: ReactNode }) {
   const [showLogin, setShowLogin] = useState(false);
   const [symbolVisible, setSymbolVisible] = useState(false);
+  const [blinking, setBlinking] = useState(false);
+  const [gazeOffset, setGazeOffset] = useState<-1 | 0 | 1>(0);
   const [lineIndex, setLineIndex] = useState<number | null>(null);
   const [linePhase, setLinePhase] = useState<LinePhase>("entering");
   const [continueVisible, setContinueVisible] = useState(false);
@@ -60,6 +62,47 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [showLogin]);
 
+  useEffect(() => {
+    if (!symbolVisible || showLogin || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let blinkTimer = 0;
+    let blinkEndTimer = 0;
+    let gazeTimer = 0;
+    let active = true;
+
+    const scheduleBlink = () => {
+      blinkTimer = window.setTimeout(() => {
+        if (!active) return;
+        setBlinking(true);
+        blinkEndTimer = window.setTimeout(() => setBlinking(false), 125);
+        scheduleBlink();
+      }, 4_200 + Math.random() * 5_800);
+    };
+
+    const scheduleGaze = () => {
+      gazeTimer = window.setTimeout(() => {
+        if (!active) return;
+        setGazeOffset((current) => {
+          const alternatives = ([-1, 0, 1] as const).filter((value) => value !== current);
+          return alternatives[Math.floor(Math.random() * alternatives.length)];
+        });
+        scheduleGaze();
+      }, 2_600 + Math.random() * 3_800);
+    };
+
+    scheduleBlink();
+    scheduleGaze();
+
+    return () => {
+      active = false;
+      window.clearTimeout(blinkTimer);
+      window.clearTimeout(blinkEndTimer);
+      window.clearTimeout(gazeTimer);
+      setBlinking(false);
+      setGazeOffset(0);
+    };
+  }, [symbolVisible, showLogin]);
+
   if (showLogin) return children;
 
   return (
@@ -68,16 +111,21 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
         Skip and log in
       </button>
       <section className="gatekeeper-stage">
-        <Image
-          className={`gatekeeper-symbol${symbolVisible ? " is-visible" : ""}`}
-          src="/branding/nuisance-face.webp"
-          alt=""
+        <div
+          className={`gatekeeper-portrait${symbolVisible ? " is-visible" : ""}${blinking ? " is-blinking" : ""}${linePhase !== "exiting" && lineIndex !== null ? " is-speaking" : ""}`}
+          data-gaze={gazeOffset}
           aria-hidden="true"
-          width={420}
-          height={565}
-          sizes="(max-width: 390px) 112px, 148px"
-          priority
-        />
+        >
+          <Image
+            className={`gatekeeper-symbol${symbolVisible ? " is-visible" : ""}`}
+            src="/branding/nuisance-face.webp"
+            alt=""
+            width={420}
+            height={565}
+            sizes="(max-width: 390px) 112px, 148px"
+            priority
+          />
+        </div>
         <div className="gatekeeper-dialogue" aria-live="polite" aria-atomic="true">
           {lineIndex !== null && (
             <p className={`gatekeeper-line is-${linePhase}`} aria-hidden="true" key={lineIndex}>
