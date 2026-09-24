@@ -26,9 +26,9 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
     } else {
       schedule(() => setSymbolVisible(true), 550);
       schedule(() => setVisibleLines(1), 1_650);
-      schedule(() => setVisibleLines(2), 2_350);
-      schedule(() => setVisibleLines(3), 3_050);
-      schedule(() => setContinueVisible(true), 3_350);
+      schedule(() => setVisibleLines(2), 3_050);
+      schedule(() => setVisibleLines(3), 4_450);
+      schedule(() => setContinueVisible(true), 5_050);
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
