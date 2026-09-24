@@ -83,3 +83,6 @@
 .gatekeeper-video-debug{position:fixed;z-index:50;right:8px;bottom:8px;display:flex;max-width:min(100vw - 16px,460px);flex-direction:column;gap:2px;margin:0;padding:10px 12px;border:1px solid #f6f6f6;background:#000e;color:#fff;font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:left;overflow-wrap:anywhere}
 .gatekeeper-video-debug strong{margin-bottom:3px;color:#fff;font-size:12px}
 @media(max-width:700px){.gatekeeper-video-debug{right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);font-size:10px}}
+
+.gatekeeper-video-debug-action{align-self:flex-start;min-height:34px;margin-top:6px;padding:5px 10px;border:1px solid #fff;border-radius:4px;background:#222;color:#fff;font:600 11px/1.2 Arial,Helvetica,sans-serif}
+.gatekeeper-video-debug-action:focus-visible{outline:2px solid #e2b46b;outline-offset:2px}

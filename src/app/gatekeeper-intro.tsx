@@ -18,6 +18,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
   const [showLogin, setShowLogin] = useState(false);
   const [symbolVisible, setSymbolVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
+  const [diagnosticMotionOverride, setDiagnosticMotionOverride] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -123,7 +124,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
     };
   }, [symbolVisible, showLogin, prefersReducedMotion, videoFailed, videoReady]);
 
-  const useVideo = symbolVisible && !prefersReducedMotion && !videoFailed;
+  const useVideo = symbolVisible && (!prefersReducedMotion || (diagnosticsEnabled && diagnosticMotionOverride)) && !videoFailed;
   const videoActive = useVideo && videoReady;
 
   useEffect(() => {
@@ -215,7 +216,12 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
             <span>loops observed: {videoDiagnostics.loopCount}</span>
             <span>ended: {videoDiagnostics.ended ? "yes" : "no"} · error: {videoDiagnostics.error ?? "none"}</span>
             <span>video layer: opacity {videoDiagnostics.opacity} · z-index {videoDiagnostics.zIndex} · blend {videoDiagnostics.mixBlendMode} · {videoDiagnostics.box}</span>
-            <span>reduced motion: {prefersReducedMotion ? "yes" : "no"}</span>
+            <span>system reduced motion: {prefersReducedMotion ? "yes" : "no"} · playback override: {diagnosticMotionOverride ? "on" : "off"}</span>
+            {prefersReducedMotion && (
+              <button className="gatekeeper-video-debug-action" type="button" onClick={() => setDiagnosticMotionOverride((enabled) => !enabled)}>
+                {diagnosticMotionOverride ? "Use system motion setting" : "Force playback test"}
+              </button>
+            )}
           </pre>
         )}
         <div className="gatekeeper-dialogue" aria-live="polite" aria-atomic="true">
