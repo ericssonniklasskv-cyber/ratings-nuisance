@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const dialogue = ["Jaså.", "Du hittade hit.", "Det gör inte många."];
 const CHARACTER_STAGGER_MS = 42;
@@ -11,13 +11,18 @@ const LINE_EXIT_MS = 300;
 const CONTINUE_PAUSE_MS = 350;
 
 type LinePhase = "entering" | "holding" | "exiting";
+type VideoDiagnostics = { mounted: boolean; canPlay: boolean; onPlayingTriggered: boolean; playing: boolean; currentTime: number; duration: number; ended: boolean; error: string | null; loopCount: number; opacity: string; zIndex: string; mixBlendMode: string; box: string };
+const initialVideoDiagnostics: VideoDiagnostics = { mounted: false, canPlay: false, onPlayingTriggered: false, playing: false, currentTime: 0, duration: 0, ended: false, error: null, loopCount: 0, opacity: "—", zIndex: "—", mixBlendMode: "—", box: "—" };
 
-export function GatekeeperIntro({ children }: { children: ReactNode }) {
+export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { children: ReactNode; diagnosticsEnabled?: boolean }) {
   const [showLogin, setShowLogin] = useState(false);
   const [symbolVisible, setSymbolVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const previousVideoTime = useRef(0);
+  const [videoDiagnostics, setVideoDiagnostics] = useState(initialVideoDiagnostics);
   const [blinking, setBlinking] = useState(false);
   const [gazeOffset, setGazeOffset] = useState<-1 | 0 | 1>(0);
   const [lineIndex, setLineIndex] = useState<number | null>(null);
@@ -121,6 +126,33 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
   const useVideo = symbolVisible && !prefersReducedMotion && !videoFailed;
   const videoActive = useVideo && videoReady;
 
+  useEffect(() => {
+    if (!diagnosticsEnabled || !useVideo) return;
+    const interval = window.setInterval(() => {
+      const video = videoRef.current;
+      if (!video) return;
+      const currentTime = video.currentTime;
+      const duration = Number.isFinite(video.duration) ? video.duration : 0;
+      const style = window.getComputedStyle(video);
+      const rect = video.getBoundingClientRect();
+      setVideoDiagnostics((previous) => ({
+        ...previous,
+        mounted: true,
+        playing: !video.paused && !video.ended,
+        currentTime,
+        duration,
+        ended: video.ended,
+        loopCount: currentTime < 0.3 && previousVideoTime.current > Math.max(0, duration - 0.35) ? previous.loopCount + 1 : previous.loopCount,
+        opacity: style.opacity,
+        zIndex: style.zIndex,
+        mixBlendMode: style.mixBlendMode,
+        box: `${Math.round(rect.width)}×${Math.round(rect.height)}`,
+      }));
+      previousVideoTime.current = currentTime;
+    }, 150);
+    return () => window.clearInterval(interval);
+  }, [diagnosticsEnabled, useVideo]);
+
   if (showLogin) return children;
 
   return (
@@ -145,23 +177,47 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
           />
           {useVideo && (
             <video
-              className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}`}
+              ref={videoRef}
+              className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}${diagnosticsEnabled ? " is-diagnostic" : ""}`}
+              data-debug-frame={Math.floor((videoDiagnostics.currentTime % 1.4) / 0.7)}
               src="/branding/gatekeeper-idle/idle.webm"
-              poster="/branding/gatekeeper-idle/fallback.png"
+              poster="/branding/nuisance-face.webp"
               autoPlay
               loop
               muted
               playsInline
               preload="auto"
               tabIndex={-1}
-              onPlaying={() => setVideoReady(true)}
+              onCanPlay={() => setVideoDiagnostics((previous) => ({ ...previous, canPlay: true }))}
+              onPlaying={() => {
+                setVideoReady(true);
+                setVideoDiagnostics((previous) => ({ ...previous, onPlayingTriggered: true }));
+              }}
+              onPause={() => { if (diagnosticsEnabled) setVideoDiagnostics((previous) => ({ ...previous, playing: false })); }}
+              onEnded={() => setVideoDiagnostics((previous) => ({ ...previous, ended: true }))}
               onError={() => {
                 setVideoReady(false);
                 setVideoFailed(true);
+                const code = videoRef.current?.error?.code;
+                setVideoDiagnostics((previous) => ({ ...previous, error: code ? `MediaError ${code}` : "Media load error" }));
               }}
             />
           )}
         </div>
+        {diagnosticsEnabled && (
+          <pre className="gatekeeper-video-debug" role="status" aria-live="off">
+            <strong>PREVIEW VIDEO DIAGNOSTICS</strong>
+            <span>element mounted: {videoDiagnostics.mounted ? "yes" : "no"}</span>
+            <span>canPlay: {videoDiagnostics.canPlay ? "yes" : "no"}</span>
+            <span>onPlaying: {videoDiagnostics.onPlayingTriggered ? "triggered" : "not yet"}</span>
+            <span>playing: {videoDiagnostics.playing ? "yes" : "no"}</span>
+            <span>currentTime: {videoDiagnostics.currentTime.toFixed(2)}s / {videoDiagnostics.duration.toFixed(2)}s</span>
+            <span>loops observed: {videoDiagnostics.loopCount}</span>
+            <span>ended: {videoDiagnostics.ended ? "yes" : "no"} · error: {videoDiagnostics.error ?? "none"}</span>
+            <span>video layer: opacity {videoDiagnostics.opacity} · z-index {videoDiagnostics.zIndex} · blend {videoDiagnostics.mixBlendMode} · {videoDiagnostics.box}</span>
+            <span>reduced motion: {prefersReducedMotion ? "yes" : "no"}</span>
+          </pre>
+        )}
         <div className="gatekeeper-dialogue" aria-live="polite" aria-atomic="true">
           {lineIndex !== null && (
             <p className={`gatekeeper-line is-${linePhase}`} aria-hidden="true" key={lineIndex}>

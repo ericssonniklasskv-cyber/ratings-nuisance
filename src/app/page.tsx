@@ -21,7 +21,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
     </section>
   </main>;
 
-  return <GatekeeperIntro>
+  return <GatekeeperIntro diagnosticsEnabled={process.env.VERCEL_ENV === "preview"}>
     <main className="login-shell">
     <div className="login-content">
       <h1 className="login-wordmark">nuisance</h1>
