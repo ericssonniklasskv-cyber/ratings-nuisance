@@ -146,8 +146,8 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
           {useVideo && (
             <video
               className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}`}
-              src="/branding/gatekeeper-idle/idle.webm"
-              poster="/branding/gatekeeper-idle/fallback.png"
+              src="/branding/gatekeeper-idle/idle-v2.webm"
+              poster="/branding/nuisance-face.webp"
               autoPlay
               loop
               muted
