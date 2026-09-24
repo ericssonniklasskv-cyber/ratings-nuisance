@@ -54,3 +54,18 @@
 @keyframes gatekeeper-wave-in{0%{opacity:0;filter:blur(2px);transform:translate3d(0,8px,0)}58%{opacity:.88;filter:blur(.35px);transform:translate3d(0,-1px,0)}100%{opacity:1;filter:blur(0);transform:translate3d(0,0,0)}}
 @keyframes gatekeeper-wave-out{to{opacity:0;filter:blur(2px);transform:translate3d(0,-4px,0)}}
 @media(prefers-reduced-motion:reduce){.gatekeeper-dialogue{display:grid}.gatekeeper-line,.gatekeeper-line.is-entering,.gatekeeper-line.is-holding,.gatekeeper-line.is-exiting,.gatekeeper-char{animation:none;transition:none;filter:none;transform:none;opacity:1}}
+
+/* The source portrait stays intact; motion is layered around the existing master asset. */
+.gatekeeper-portrait{position:relative;display:block;width:clamp(108px,24vw,148px);aspect-ratio:420/565;transform-origin:50% 54%;opacity:0}
+.gatekeeper-portrait.is-visible{opacity:1;animation:gatekeeper-idle 13s ease-in-out infinite}
+.gatekeeper-symbol,.gatekeeper-symbol.is-visible{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:translateY(4px);transition:opacity 850ms ease,transform 700ms cubic-bezier(.2,.65,.25,1),filter 2s ease}
+.gatekeeper-symbol.is-visible{opacity:1;transform:translate3d(0,0,0);filter:drop-shadow(0 0 3px rgba(226,180,107,.08));animation:gatekeeper-glow 8s ease-in-out infinite;will-change:transform,filter}
+.gatekeeper-portrait[data-gaze="-1"] .gatekeeper-symbol{transform:translate3d(-.45px,0,0)}
+.gatekeeper-portrait[data-gaze="1"] .gatekeeper-symbol{transform:translate3d(.45px,0,0)}
+.gatekeeper-portrait[data-gaze="-1"].is-speaking .gatekeeper-symbol,.gatekeeper-portrait[data-gaze="1"].is-speaking .gatekeeper-symbol{transform:translate3d(0,0,0)}
+.gatekeeper-portrait.is-blinking .gatekeeper-symbol{transform:translate3d(0,0,0) scaleY(.994);transition-duration:90ms}
+.gatekeeper-portrait.is-speaking::after{position:absolute;inset:63% 27% 23%;z-index:1;border-radius:50%;background:radial-gradient(ellipse,rgba(226,180,107,.075),rgba(226,180,107,0) 72%);content:"";opacity:0;pointer-events:none;animation:gatekeeper-speaking 1.65s ease-in-out infinite}
+@keyframes gatekeeper-idle{0%,100%{transform:translate3d(0,0,0) rotate(-.12deg) scale(1)}35%{transform:translate3d(.35px,-1.2px,0) rotate(.16deg) scale(1.002)}68%{transform:translate3d(-.25px,.6px,0) rotate(.04deg) scale(1.001)}}
+@keyframes gatekeeper-glow{0%,100%{filter:drop-shadow(0 0 3px rgba(226,180,107,.07))}52%{filter:drop-shadow(0 0 5px rgba(226,180,107,.14))}}
+@keyframes gatekeeper-speaking{0%,100%{opacity:.18;transform:scale(.98,.92)}50%{opacity:.65;transform:scale(1,.98)}}
+@media(prefers-reduced-motion:reduce){.gatekeeper-portrait,.gatekeeper-portrait.is-visible,.gatekeeper-symbol,.gatekeeper-symbol.is-visible{animation:none!important;transition:none!important;transform:none!important;filter:none!important;opacity:1!important}.gatekeeper-portrait.is-speaking::after{animation:none!important;transition:none!important;transform:none!important;filter:none!important;opacity:0!important}}
