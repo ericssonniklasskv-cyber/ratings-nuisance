@@ -74,4 +74,4 @@
 .gatekeeper-portrait.is-video-active{animation:none!important;transform:none!important}
 .gatekeeper-portrait.is-video-active .gatekeeper-symbol{opacity:0!important;animation:none!important;transition:none!important;transform:none!important;filter:none!important}
 .gatekeeper-portrait.is-video-active.is-speaking::after{animation:none;opacity:0}
-.gatekeeper-portrait-video{position:absolute;inset:0;z-index:2;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 250ms ease;pointer-events:none}
+.gatekeeper-portrait-video{position:absolute;inset:0;z-index:2;width:100%;height:100%;object-fit:contain;opacity:0;mix-blend-mode:lighten;transition:opacity 250ms ease;pointer-events:none}
