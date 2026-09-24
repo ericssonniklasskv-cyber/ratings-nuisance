@@ -69,3 +69,8 @@
 @keyframes gatekeeper-glow{0%,100%{filter:drop-shadow(0 0 3px rgba(226,180,107,.07))}52%{filter:drop-shadow(0 0 5px rgba(226,180,107,.14))}}
 @keyframes gatekeeper-speaking{0%,100%{opacity:.18;transform:scale(.98,.92)}50%{opacity:.65;transform:scale(1,.98)}}
 @media(prefers-reduced-motion:reduce){.gatekeeper-portrait,.gatekeeper-portrait.is-visible,.gatekeeper-symbol,.gatekeeper-symbol.is-visible{animation:none!important;transition:none!important;transform:none!important;filter:none!important;opacity:1!important}.gatekeeper-portrait.is-speaking::after{animation:none!important;transition:none!important;transform:none!important;filter:none!important;opacity:0!important}}
+
+.gatekeeper-portrait-video.is-ready{opacity:1}
+.gatekeeper-portrait.is-video-active{animation:none!important;transform:none!important}
+.gatekeeper-portrait.is-video-active .gatekeeper-symbol{opacity:0!important;animation:none!important;transition:none!important;transform:none!important;filter:none!important}
+.gatekeeper-portrait.is-video-active.is-speaking::after{animation:none;opacity:0}
