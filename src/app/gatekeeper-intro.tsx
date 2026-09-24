@@ -134,6 +134,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
       if (!video) return;
       const currentTime = video.currentTime;
       const duration = Number.isFinite(video.duration) ? video.duration : 0;
+      const didLoop = currentTime < 0.3 && previousVideoTime.current > Math.max(0, duration - 0.35);
       const style = window.getComputedStyle(video);
       const rect = video.getBoundingClientRect();
       setVideoDiagnostics((previous) => ({
@@ -143,7 +144,7 @@ export function GatekeeperIntro({ children, diagnosticsEnabled = false }: { chil
         currentTime,
         duration,
         ended: video.ended,
-        loopCount: currentTime < 0.3 && previousVideoTime.current > Math.max(0, duration - 0.35) ? previous.loopCount + 1 : previous.loopCount,
+        loopCount: previous.loopCount + (didLoop ? 1 : 0),
         opacity: style.opacity,
         zIndex: style.zIndex,
         mixBlendMode: style.mixBlendMode,
