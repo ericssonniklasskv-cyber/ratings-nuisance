@@ -12,7 +12,7 @@ export function AppHeader({ admin = false }: { admin?: boolean }) {
   ];
 
   return <>
-    <header className="app-header">
+    <header className={`app-header${pathname === "/" ? " app-header-home" : ""}`}>
       <Link href="/" className="wordmark" aria-label="nuisance home">nuisance</Link>
       <nav className={`desktop-nav${pathname === "/" ? " desktop-nav-home" : ""}`} aria-label="Main navigation">
         {links.map((link) => <Link key={link.href} href={link.href} aria-current={link.active ? "page" : undefined}>{link.label}</Link>)}
