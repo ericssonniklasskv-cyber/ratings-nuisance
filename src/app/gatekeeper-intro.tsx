@@ -15,11 +15,26 @@ type LinePhase = "entering" | "holding" | "exiting";
 export function GatekeeperIntro({ children }: { children: ReactNode }) {
   const [showLogin, setShowLogin] = useState(false);
   const [symbolVisible, setSymbolVisible] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const [blinking, setBlinking] = useState(false);
   const [gazeOffset, setGazeOffset] = useState<-1 | 0 | 1>(0);
   const [lineIndex, setLineIndex] = useState<number | null>(null);
   const [linePhase, setLinePhase] = useState<LinePhase>("entering");
   const [continueVisible, setContinueVisible] = useState(false);
+
+  useEffect(() => {
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => {
+      setPrefersReducedMotion(motionPreference.matches);
+      setVideoReady(false);
+    };
+
+    updateMotionPreference();
+    motionPreference.addEventListener("change", updateMotionPreference);
+    return () => motionPreference.removeEventListener("change", updateMotionPreference);
+  }, []);
 
   useEffect(() => {
     if (showLogin) return;
@@ -63,7 +78,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
   }, [showLogin]);
 
   useEffect(() => {
-    if (!symbolVisible || showLogin || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!symbolVisible || showLogin || prefersReducedMotion || videoFailed || videoReady) return;
 
     let blinkTimer = 0;
     let blinkEndTimer = 0;
@@ -101,7 +116,10 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
       setBlinking(false);
       setGazeOffset(0);
     };
-  }, [symbolVisible, showLogin]);
+  }, [symbolVisible, showLogin, prefersReducedMotion, videoFailed, videoReady]);
+
+  const useVideo = symbolVisible && !prefersReducedMotion && !videoFailed;
+  const videoActive = useVideo && videoReady;
 
   if (showLogin) return children;
 
@@ -112,7 +130,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
       </button>
       <section className="gatekeeper-stage">
         <div
-          className={`gatekeeper-portrait${symbolVisible ? " is-visible" : ""}${blinking ? " is-blinking" : ""}${linePhase !== "exiting" && lineIndex !== null ? " is-speaking" : ""}`}
+          className={`gatekeeper-portrait${symbolVisible ? " is-visible" : ""}${blinking ? " is-blinking" : ""}${linePhase !== "exiting" && lineIndex !== null ? " is-speaking" : ""}${videoActive ? " is-video-active" : ""}`}
           data-gaze={gazeOffset}
           aria-hidden="true"
         >
@@ -125,6 +143,24 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
             sizes="(max-width: 390px) 112px, 148px"
             priority
           />
+          {useVideo && (
+            <video
+              className={`gatekeeper-portrait-video${videoReady ? " is-ready" : ""}`}
+              src="/branding/gatekeeper-idle/idle.webm"
+              poster="/branding/gatekeeper-idle/fallback.png"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              tabIndex={-1}
+              onPlaying={() => setVideoReady(true)}
+              onError={() => {
+                setVideoReady(false);
+                setVideoFailed(true);
+              }}
+            />
+          )}
         </div>
         <div className="gatekeeper-dialogue" aria-live="polite" aria-atomic="true">
           {lineIndex !== null && (
