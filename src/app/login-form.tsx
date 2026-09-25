@@ -10,15 +10,18 @@ export function LoginForm() {
   async function continueWithGoogle() {
     setGooglePending(true);
     setGoogleError("");
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
-      setGoogleError("Google sign-in is unavailable. Please try again.");
-      setGooglePending(false);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (!error) return;
+    } catch {
+      // Network failures should leave the sign-in button available for retry.
     }
+    setGoogleError("Google sign-in is unavailable. Please try again.");
+    setGooglePending(false);
   }
 
   return (

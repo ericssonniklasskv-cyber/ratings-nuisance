@@ -24,6 +24,7 @@ export function ImdbLibrary({ entries, total, page, query, seriesCount, pendingC
   const [matching, setMatching] = useState<Entry | null>(null);
   const [matchQuery, setMatchQuery] = useState("");
   const [matchResults, setMatchResults] = useState<SearchResult[]>([]);
+  const matchSearchGeneration = useRef(0);
   const pageCount = Math.max(1, Math.ceil(total / 40));
   useEffect(() => () => { if (searchTimer.current) clearTimeout(searchTimer.current); }, []);
 
@@ -80,11 +81,19 @@ export function ImdbLibrary({ entries, total, page, query, seriesCount, pendingC
 
   async function searchMatch() {
     if (matchQuery.trim().length < 2) return;
+    const generation = ++matchSearchGeneration.current;
     setError("");
-    const response = await fetch(`/api/search?q=${encodeURIComponent(matchQuery.trim())}`);
-    const result = await response.json();
-    if (!response.ok) { setError(result.error ?? "Search failed."); return; }
-    setMatchResults((result.results as SearchResult[]).filter((item) => !matching?.mediaType || item.mediaType === matching.mediaType));
+    setMatchResults([]);
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(matchQuery.trim())}`);
+      const result = await response.json();
+      if (generation !== matchSearchGeneration.current) return;
+      if (!response.ok) throw new Error(result.error ?? "Search failed.");
+      setMatchResults((result.results as SearchResult[]).filter((item) => !matching?.mediaType || item.mediaType === matching.mediaType));
+    } catch (cause) {
+      if (generation === matchSearchGeneration.current)
+        setError(cause instanceof Error ? cause.message : "Search failed. Try again.");
+    }
   }
 
   async function saveMatch(result: SearchResult) {
@@ -111,15 +120,15 @@ export function ImdbLibrary({ entries, total, page, query, seriesCount, pendingC
       <div className="imdb-controls"><input type="search" aria-label="Search films to rate" placeholder="Search films to rate" value={search} onChange={(event) => updateSearch(event.target.value)} />
         {query && <Link className="text-button" href="/my-ratings?tab=to-rate">Clear search</Link>}</div>
     {entries.length > 0 && <>
-      {matching && <div className="imdb-match-panel"><div className="imdb-match-heading"><h2>Find {matching.title} on TMDb</h2><button className="text-button" onClick={() => { setMatching(null); setMatchResults([]); }} type="button">Close</button></div>
-        <form onSubmit={(event) => { event.preventDefault(); void searchMatch(); }}><input aria-label="Search TMDb" value={matchQuery} onChange={(event) => setMatchQuery(event.target.value)} /><button className="button secondary" type="submit">Search</button></form>
+      {matching && <div className="imdb-match-panel"><div className="imdb-match-heading"><h2>Find {matching.title} on TMDb</h2><button className="text-button" onClick={() => { matchSearchGeneration.current++; setMatching(null); setMatchResults([]); }} type="button">Close</button></div>
+        <form onSubmit={(event) => { event.preventDefault(); void searchMatch(); }}><input aria-label="Search TMDb" value={matchQuery} onChange={(event) => { matchSearchGeneration.current++; setMatchQuery(event.target.value); setMatchResults([]); }} /><button className="button secondary" type="submit">Search</button></form>
         <div className="imdb-match-results">{matchResults.map((result) => <button key={`${result.mediaType}-${result.tmdbId}`} type="button" disabled={busy} onClick={() => saveMatch(result)}><div><Poster path={result.posterPath} title={result.title} size="list" /></div><span><strong>{result.title}</strong><small>{result.releaseYear ?? ""} · {result.mediaType === "tv" ? "TV" : "Movie"}</small></span></button>)}</div>
       </div>}
       <div className="imdb-grid">{entries.map((entry) => <div key={entry.id} className="imdb-item">
         {entry.tmdbId && (entry.mediaType === "movie" || entry.mediaType === "tv") ? <Link href={`/rate/${entry.mediaType}/${entry.tmdbId}`} aria-label={`Rate ${entry.title}`}>
           <Poster path={entry.posterPath} title={entry.title} size="collection" /><strong>{entry.title}</strong><span>{entry.year ?? ""} · Rate in Nuisance →</span>
         </Link> : <><Poster path={entry.posterPath} title={entry.title} size="collection" /><strong>{entry.title}</strong><span>{entry.year ?? ""} · {entry.attempted ? "No TMDb match" : "Matching pending"}</span>
-          {entry.attempted && <button className="text-button imdb-find" type="button" onClick={() => { setMatching(entry); setMatchQuery(entry.title); setMatchResults([]); }}>Find match</button>}</>}
+          {entry.attempted && <button className="text-button imdb-find" type="button" onClick={() => { matchSearchGeneration.current++; setMatching(entry); setMatchQuery(entry.title); setMatchResults([]); setError(""); }}>Find match</button>}</>}
       </div>)}</div>
     </>}
     {!entries.length && <div className="library-no-results"><h2>{query ? `No imported films match “${query}”` : "No films waiting to be rated"}</h2><p>{query ? "Try another title or clear the search." : "Import your IMDb ratings above or find a title to rate."}</p></div>}
