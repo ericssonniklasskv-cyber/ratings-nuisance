@@ -34,9 +34,11 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
   const [linePhase, setLinePhase] = useState<LinePhase>("entering");
   const [contentVisible, setContentVisible] = useState(false);
   const [secretRevealed, setSecretRevealed] = useState(false);
+  const [secretSlot, setSecretSlot] = useState<"2A" | "2B" | null>(null);
   const [tease, setTease] = useState("");
   const [answer, setAnswer] = useState("");
   const choiceTimer = useRef<number | null>(null);
+  const secretButton = useRef<HTMLButtonElement>(null);
 
   const step = stepId === null ? null : gatekeeperStory[stepId];
   const text = stepId === null ? "" : getText(stepId);
@@ -77,6 +79,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
       setLinePhase(reducedMotion ? "holding" : "entering");
       setContentVisible(false);
       setSecretRevealed(false);
+      setSecretSlot(null);
       setTease("");
     }, 0);
     schedule(() => {
@@ -145,11 +148,13 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
     setShowLogin(true);
   }
 
-  function choose(option: { id: string; next?: string }) {
+  function choose(option: { id: string; next?: string }, keyboardActivated: boolean) {
     if (choiceTimer.current !== null) return;
     if (!option.next) {
       setSecretRevealed(true);
+      setSecretSlot(option.id === "2B" ? "2B" : "2A");
       setTease(option.id === "2A" ? "Försök inte, Bohlin." : "");
+      if (keyboardActivated) window.requestAnimationFrame(() => secretButton.current?.focus());
       return;
     }
     setContentVisible(false);
@@ -171,6 +176,16 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
 
   const useVideo = symbolVisible && !prefersReducedMotion && !videoFailed;
   const videoActive = useVideo && videoReady;
+  let visibleOptions = step?.kind === "choice"
+    ? step.options.filter((option) => !option.hiddenUntilAttempt || secretRevealed)
+    : [];
+  if (stepId === "size-choice" && secretSlot) {
+    const secret = visibleOptions.find((option) => option.id === "2C");
+    if (secret) {
+      visibleOptions = visibleOptions.filter((option) => option.id !== "2C");
+      visibleOptions.splice(secretSlot === "2A" ? 0 : 1, 0, secret);
+    }
+  }
 
   if (showLogin) return children;
 
@@ -239,8 +254,8 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
         </div>
         {contentVisible && step?.kind === "choice" && (
           <div className="gatekeeper-options" role="group" aria-label={step.prompt}>
-            {step.options.filter((option) => !option.hiddenUntilAttempt || secretRevealed).map((option) => (
-              <button className={`gatekeeper-option${option.hiddenUntilAttempt ? " is-secret" : ""}`} type="button" key={option.id} onClick={() => choose(option)}>
+            {visibleOptions.map((option) => (
+              <button className={`gatekeeper-option${option.hiddenUntilAttempt ? " is-secret" : ""}`} type="button" key={option.id} ref={option.hiddenUntilAttempt ? secretButton : undefined} onClick={(event) => choose(option, event.detail === 0)}>
                 {option.label.trim()}
               </button>
             ))}
