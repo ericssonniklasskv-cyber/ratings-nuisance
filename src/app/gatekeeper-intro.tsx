@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { Fragment, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { firstGatekeeperStep, gatekeeperStory, isCorrectGatekeeperAnswer } from "@/lib/gatekeeper-story";
 
@@ -9,11 +8,6 @@ const CHARACTER_STAGGER_MS = 42;
 const MAX_STAGGER_SPAN_MS = 1_200;
 const CHARACTER_WAVE_MS = 460;
 const LINE_EXIT_MS = 300;
-
-const GatekeeperGame = dynamic(() => import("@/game/gatekeeper/GatekeeperGame"), {
-  ssr: false,
-  loading: () => <p role="status">Laddar spelet…</p>,
-});
 
 type LinePhase = "entering" | "holding" | "exiting";
 
@@ -30,7 +24,6 @@ function revealTiming(text: string, reducedMotion: boolean) {
 
 export function GatekeeperIntro({ children }: { children: ReactNode }) {
   const [showLogin, setShowLogin] = useState(false);
-  const [showGame, setShowGame] = useState(false);
   const [symbolVisible, setSymbolVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -65,7 +58,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (showLogin || showGame) return;
+    if (showLogin) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const symbolTimer = window.setTimeout(() => setSymbolVisible(true), reducedMotion ? 0 : 550);
     const firstLineTimer = window.setTimeout(() => setStepId(firstGatekeeperStep), reducedMotion ? 0 : 1_650);
@@ -73,10 +66,10 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
       window.clearTimeout(symbolTimer);
       window.clearTimeout(firstLineTimer);
     };
-  }, [showLogin, showGame]);
+  }, [showLogin]);
 
   useEffect(() => {
-    if (!step || showLogin || showGame) return;
+    if (!step || showLogin) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const { duration } = revealTiming(getText(stepId!), reducedMotion);
     const timers: number[] = [];
@@ -103,14 +96,14 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
     }, duration);
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [step, stepId, showLogin, showGame]);
+  }, [step, stepId, showLogin]);
 
   useEffect(() => () => {
     if (choiceTimer.current !== null) window.clearTimeout(choiceTimer.current);
   }, []);
 
   useEffect(() => {
-    if (!symbolVisible || showLogin || showGame || prefersReducedMotion || videoFailed || videoReady) return;
+    if (!symbolVisible || showLogin || prefersReducedMotion || videoFailed || videoReady) return;
 
     let blinkTimer = 0;
     let blinkEndTimer = 0;
@@ -148,7 +141,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
       setBlinking(false);
       setGazeOffset(0);
     };
-  }, [symbolVisible, showLogin, showGame, prefersReducedMotion, videoFailed, videoReady]);
+  }, [symbolVisible, showLogin, prefersReducedMotion, videoFailed, videoReady]);
 
   function openLogin() {
     if (choiceTimer.current !== null) window.clearTimeout(choiceTimer.current);
@@ -178,7 +171,7 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
 
   function submitAnswer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isCorrectGatekeeperAnswer(answer)) setShowGame(true);
+    if (isCorrectGatekeeperAnswer(answer)) openLogin();
   }
 
   const useVideo = symbolVisible && !prefersReducedMotion && !videoFailed;
@@ -195,15 +188,6 @@ export function GatekeeperIntro({ children }: { children: ReactNode }) {
   }
 
   if (showLogin) return children;
-
-  if (showGame) return (
-    <main className="gatekeeper" aria-label="Nuisance-introduktion" lang="sv">
-      <button className="gatekeeper-skip" type="button" onClick={openLogin} lang="en">
-        Skip and log in
-      </button>
-      <GatekeeperGame onComplete={openLogin} />
-    </main>
-  );
 
   return (
     <main className="gatekeeper gatekeeper-story" aria-label="Nuisance-introduktion" lang="sv">
